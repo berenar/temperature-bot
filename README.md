@@ -2,6 +2,8 @@
 
 A TypeScript Node.js application that fetches temperature data from HomePod mini devices every hour via HomeKit.
 
+> **Note:** This is a quick proof of concept created with [Claude Code](https://claude.ai/code) to explore HomePod temperature monitoring via HomeKit protocol.
+
 ## Features
 
 - 🌡️ Reads temperature from HomePod mini sensors
