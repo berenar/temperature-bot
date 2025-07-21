@@ -56,7 +56,7 @@ class TemperatureBot {
         pin: "031-45-154",
       });
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const devices: TemperatureDevice[] = [];
 
         client.on("Ready", () => {
