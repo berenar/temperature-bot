@@ -1,16 +1,53 @@
 import { schedule } from "node-cron";
 import { HAPNodeJSClient } from "hap-node-client";
 
-interface TemperatureReading {
+type TemperatureReading = {
   temperature: number;
   timestamp: Date;
   deviceName?: string;
-}
+};
+
+type HAPCharacteristic = {
+  aid: number;
+  iid: number;
+  type: string;
+  description?: string;
+  value: number;
+};
+
+type HAPService = {
+  characteristics: HAPCharacteristic[];
+};
+
+type HAPAccessory = {
+  name?: string;
+  host: string;
+  port: number;
+  services: HAPService[];
+};
+
+type HAPAccessories = {
+  [deviceId: string]: HAPAccessory;
+};
+
+type TemperatureDevice = {
+  name: string;
+  deviceId: string;
+  aid: number;
+  iid: number;
+  temperature: number;
+  host: string;
+  port: number;
+};
+
+type HAPEvent = {
+  [key: string]: unknown;
+};
 
 class TemperatureBot {
   private isRunning = false;
 
-  async discoverHomePods(): Promise<any[]> {
+  async discoverHomePods(): Promise<TemperatureDevice[]> {
     try {
       const client = new HAPNodeJSClient({
         debug: true,
@@ -20,25 +57,22 @@ class TemperatureBot {
       });
 
       return new Promise((resolve, reject) => {
-        const devices: any[] = [];
+        const devices: TemperatureDevice[] = [];
 
         client.on("Ready", () => {
           console.log("HAP client ready, getting accessories...");
 
-          client.HAPaccessories((accessories: any) => {
+          client.HAPaccessories((accessories: HAPAccessories) => {
             console.log(
               "Discovered accessories:",
               Object.keys(accessories).length,
             );
 
-            for (const [deviceId, accessory] of Object.entries(
-              accessories as any,
-            )) {
-              const acc = accessory as any;
-              console.log(`Checking device: ${deviceId}`, acc.name);
+            for (const [deviceId, accessory] of Object.entries(accessories)) {
+              console.log(`Checking device: ${deviceId}`, accessory.name);
 
-              if (acc.services) {
-                for (const service of acc.services) {
+              if (accessory.services) {
+                for (const service of accessory.services) {
                   if (service.characteristics) {
                     for (const char of service.characteristics) {
                       if (
@@ -46,13 +80,13 @@ class TemperatureBot {
                         char.description?.includes("Temperature")
                       ) {
                         devices.push({
-                          name: acc.name || `Device-${deviceId}`,
+                          name: accessory.name || `Device-${deviceId}`,
                           deviceId,
                           aid: char.aid,
                           iid: char.iid,
                           temperature: char.value,
-                          host: acc.host,
-                          port: acc.port,
+                          host: accessory.host,
+                          port: accessory.port,
                         });
                         console.log(
                           `Found temperature sensor: ${char.value}°C`,
@@ -68,7 +102,7 @@ class TemperatureBot {
           });
         });
 
-        client.on("hapEvent", (event: any) => {
+        client.on("hapEvent", (event: HAPEvent) => {
           console.log("HAP Event received:", event);
         });
 
