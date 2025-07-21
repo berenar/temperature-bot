@@ -1,4 +1,5 @@
-import * as cron from "node-cron";
+import { schedule } from "node-cron";
+import { HAPNodeJSClient } from "hap-node-client";
 
 interface TemperatureReading {
   temperature: number;
@@ -11,7 +12,6 @@ class TemperatureBot {
 
   async discoverHomePods(): Promise<any[]> {
     try {
-      const { HAPNodeJSClient } = require("hap-node-client");
       const client = new HAPNodeJSClient({
         debug: true,
         timeout: 15,
@@ -127,7 +127,7 @@ class TemperatureBot {
     this.isRunning = true;
     console.log("🚀 Starting hourly temperature monitoring...");
 
-    cron.schedule("0 * * * *", async () => {
+    schedule("0 * * * *", async () => {
       console.log("\n⏰ Scheduled temperature check...");
       const reading = await this.getTemperature();
 

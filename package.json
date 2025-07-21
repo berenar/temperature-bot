@@ -1,11 +1,12 @@
 {
   "name": "temperature-bot",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "ts-node src/app.ts",
+    "dev": "node --import tsx src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "@types/node": "^24.0.15",
     "@types/node-cron": "^3.0.11",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }
